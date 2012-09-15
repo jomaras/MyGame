@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="../js/ostro/Class.js"></script>
+    <script>
+        var Person = Class.extend({
+            init: function(isDancing){
+                this.dancing = isDancing;
+            },
+            test: function()
+            {
+                console.log("Person test");
+            }
+        });
+        var Ninja = Person.extend({
+            init: function(test)
+            {
+                this._super(test);
+            },
+            test: function()
+            {
+                console.log("Ninja test");
+            }
+        });
+
+        var p = new Person(true);
+        var n = new Ninja(false);
+
+        n.test();
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
