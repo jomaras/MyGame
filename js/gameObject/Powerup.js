@@ -7,7 +7,7 @@ var Powerup = AnimatedGameObject.extend({
        this.sineWavePos = 0;
        this.bounceTime = 1;
        this.bounceSpeed = Math.PI / this.bounceTime;
-       this.bounceHeight = 5;
+       this.bounceHeight = 3;
     },
 
     update: function (dt, context, xScroll, yScroll)

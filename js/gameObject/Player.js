@@ -9,17 +9,17 @@ var Player = AnimatedGameObject.extend({
         this.runLeft = this.resourceManager.getResource("runLeft");
         this.runRight = this.resourceManager.getResource("runRight");
 
-        this._super(this.idleLeft, 300, 400 - 48 - 48, 4, 6, 20);
+        this._super(this.idleRight, 300, 400 - 48 - 48, 4, 6, 20);
 
         this.level = level;
         this.jumpHeight = 64;
         this.halfPI = Math.PI / 2;
-        this.jumpHangTime = 0.5;
+        this.jumpHangTime = 0.35;
         this.jumpSinWaveSpeed = this.halfPI / this.jumpHangTime;
         this.jumpSinWavePos = 0;
         this.fallMultiplyer = 1.5;
         this.grounded = true;
-        this.speed = 75;
+        this.speed = 95;
         this.left = false;
         this.right = false;
         this.screenBorder = 20;
@@ -116,32 +116,34 @@ var Player = AnimatedGameObject.extend({
                 if (playerHeight  < groundHeight)
                 {
                     collision = true;
-                    // we are moving right, so push the player left
-                    if (this.right)
-                    {
-                        this.x = this.level.blockWidth * currentBlock - this.frameWidth - 1;
-                    }
-                    // we are moving left, push the player right
-                    else
-                        this.x = this.level.blockWidth * (currentBlock + 1);
+
+                    // push to the other side
+                    this.x = this.right ? this.level.blockWidth * currentBlock - this.frameWidth - 1
+                                        : this.level.blockWidth * (currentBlock + 1);
                 }
                 else
                 {
                     collision = false;
                 }
-            }  while (collision)
+            } while (collision)
         }
 
         // keep the player bound to the level
         if (this.x > this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1)
+        {
             this.x = this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1;
-        if (this.x > context.canvas.width - this.frameWidth + xScroll -  this.screenBorder)
-            this.gameObjectManager.xScroll = this.x - (context.canvas.width - this.frameWidth -  this.screenBorder);
-        // modify the xScroll value to keep the player on the screen
+        }
+
+        var xScroll = this.x - (context.canvas.width/2) - this.screenBorder;
+
+        if(xScroll < 0) { xScroll = 0; }
+
+        this.gameObjectManager.xScroll = xScroll;
+
         if (this.x < 0)
+        {
             this.x = 0;
-        if (this.x -  this.screenBorder < xScroll)
-            this.gameObjectManager.xScroll = this.x - this.screenBorder;
+        }
 
         // if the player is jumping or falling, move along the sine wave
         if (!this.grounded)
@@ -154,10 +156,13 @@ var Player = AnimatedGameObject.extend({
             // we have fallen off the bottom of the sine wave, so continue falling
             // at a predetermined speed
             if (this.jumpSinWavePos >= Math.PI)
+            {
                 this.y += this.jumpHeight / this.jumpHangTime * this.fallMultiplyer * dt;
-            // otherwise move along the sine wave
+            }
             else
+            {
                 this.y -= (Math.sin(this.jumpSinWavePos) - Math.sin(lastHeight)) * this.jumpHeight;
+            }
         }
 
         // now that the player has had it's y position changed we need to check for a collision
