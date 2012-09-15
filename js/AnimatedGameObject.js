@@ -13,11 +13,6 @@ var AnimatedGameObject = VisualGameObject.extend({
         this.frameWidth = this.image.width / this.frameCount;
     },
 
-    shutdownAnimatedGameObject: function()
-    {
-        this.shutDownGame();
-    },
-
     setAnimation: function(image, frameCount, fps)
     {
         if (frameCount <= 0) throw "framecount can not be <= 0";

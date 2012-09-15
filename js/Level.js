@@ -1,8 +1,13 @@
 var Level = Class.extend({
-   init: function(canvasWidth, canvasHeight)
+   init: function(canvasWidth, canvasHeight, resourceManager)
    {
-       this.blocks = [];
+       this.resourceManager = resourceManager;
+
        this.powerups = {};
+       this.powerupItems = [];
+
+       this.blocks = [];
+       this.blockItems = [];
        this.blockWidth = 64;
        this.blockHeight = 48;
 
@@ -32,19 +37,24 @@ var Level = Class.extend({
        this.addPowerups(canvasWidth, canvasHeight);
    },
 
-    addBlocks: function(canvasWidth, canvasHeight)
-    {
+   getGameObjects: function()
+   {
+       return this.blockItems.concat(this.powerupItems);
+   },
+
+   addBlocks: function(canvasWidth, canvasHeight)
+   {
         for (var x = 0; x < this.blocks.length; ++x)
         {
             for (var y = 0; y < this.blocks[x]; ++y)
             {
-                new VisualGameObject(g_ResourceManager.block, x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4);
+                this.blockItems.push(new VisualGameObject(this.resourceManager.getResource("block"), x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4));
             }
         }
-    },
+   },
 
-    addPowerups: function(canvasWidth, canvasHeight)
-    {
+   addPowerups: function(canvasWidth, canvasHeight)
+   {
         for (var x = 0; x < this.blocks.length; ++x)
         {
             if (this.powerups[x])
@@ -52,15 +62,17 @@ var Level = Class.extend({
                 var xPosition = x * this.blockWidth + this.blockWidth / 2;
                 var yPosition = canvasHeight - this.groundHeight(x);
 
+                var powerupResource = this.resourceManager.getResource("gem");
+
                 switch(this.powerups[x])
                 {
                     case 'Gem':
-                        new Powerup(10, g_ResourceManager.gem, xPosition - g_ResourceManager.gem.width / 2, yPosition - g_ResourceManager.gem.height, 4, 1, 1);
+                        this.powerupItems.push(new Powerup(10, powerupResource, xPosition - powerupResource.width / 2, yPosition - powerupResource.height, 4, 1, 1));
                         break;
                 }
             }
         }
-    },
+   },
 
     currentBlock: function(x)
     {
@@ -69,7 +81,10 @@ var Level = Class.extend({
 
     groundHeight: function(blockIndex)
     {
-        if (blockIndex < 0 || blockIndex > this.blocks.length) return 0;
+        if (blockIndex < 0 || blockIndex > this.blocks.length)
+        {
+            return 0;
+        }
 
         return this.blocks[blockIndex] *  this.blockHeight;
     }

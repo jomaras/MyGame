@@ -10,20 +10,15 @@ var Powerup = AnimatedGameObject.extend({
        this.bounceHeight = 5;
     },
 
-    shutdownPowerup: function()
-    {
-        this.shutdownAnimatedGameObject();
-    },
-
     update: function (dt, context, xScroll, yScroll)
     {
         var lastSineWavePos = this.sineWavePos;
         this.sineWavePos += this.bounceSpeed * dt;
         this.y += (Math.sin(this.sineWavePos) - Math.sin(lastSineWavePos)) * this.bounceHeight;
 
-        if (this.collisionArea().intersects(g_player.collisionArea()))
+        /*if (this.collisionArea().intersects(g_player.collisionArea()))
         {
-            this.shutdownPowerup();
-        }
+            alert("Shut down powerup");
+        }*/
     }
 });

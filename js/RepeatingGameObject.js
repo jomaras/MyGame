@@ -1,4 +1,3 @@
-
 var RepeatingGameObject = VisualGameObject.extend({
     init: function(image, x, y, z, width, height, scrollFactor)
     {
@@ -7,11 +6,6 @@ var RepeatingGameObject = VisualGameObject.extend({
         this.width = width;
         this.height = height;
         this.scrollFactor = scrollFactor;
-    },
-
-    shutdownstartupRepeatingGameObject: function()
-    {
-        this.shutDownGame();
     },
 
     draw: function(deltaTime, canvas, xScroll, yScroll)

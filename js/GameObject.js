@@ -5,12 +5,6 @@ var GameObject = Class.extend
         this.x = x;
         this.y = y;
         this.zOrder = z;
-
-        g_GameObjectManager.addGameObject(this);
-    },
-    shutDown: function()
-    {
-        g_GameObjectManager.removeGameObject(this);
     }
 });
 

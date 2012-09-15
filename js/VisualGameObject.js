@@ -12,12 +12,6 @@ var VisualGameObject = GameObject.extend
         context.drawImage(this.image, this.x - xScroll, this.y - yScroll);
     },
 
-    shutDownGame: function()
-    {
-        this.shutDown();
-        this.image = null;
-    },
-
     collisionArea: function()
     {
         return new Rectangle(this.x, this.y, this.image.width, this.image.height);

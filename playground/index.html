@@ -2,36 +2,45 @@
 <html>
 <head>
     <title></title>
-    <script src="../js/ostro/Class.js"></script>
     <script>
-        var Person = Class.extend({
-            init: function(isDancing){
-                this.dancing = isDancing;
-            },
-            test: function()
-            {
-                console.log("Person test");
-            }
-        });
-        var Ninja = Person.extend({
-            init: function(test)
-            {
-                this._super(test);
-            },
-            test: function()
-            {
-                console.log("Ninja test");
-            }
-        });
+    function loadImages()
+    {
+        var startTime = new Date();
+        var paths =
+        [
+            { src: "http://2.bp.blogspot.com/-ujddJNQ7hBU/T6LKuxhQsLI/AAAAAAAAFNU/RwdvAUH-D7c/s1600/mountains-wallpaper-6.jpg"},
+            { src: "http://wallpapers.free-review.net/wallpapers/42/Norway_Mountains.jpg"},
+            { src: "http://wallpapers-diq.net/wallpapers/14/Heli_Pickup%2C_Harris_Mountains%2C_New_Zealand.jpg"}
+        ];
 
-        var p = new Person(true);
-        var n = new Ninja(false);
+        var noOfLoadedImages = 0;
 
-        n.test();
+        for(var i = 0; i < paths.length; i++)
+        {
+            var image = new Image();
+            image.item = paths[i];
+
+            image.onload = function()
+            {
+                console.log(this.item.src + " has been loaded");
+                this.item.loaded = true;
+                noOfLoadedImages++;
+
+                if(noOfLoadedImages == paths.length)
+                {
+                    console.log("All images have been loaded: " + (new Date() - startTime)/1000 );
+                }
+            }
+
+            image.src = paths[i].src;
+        }
+    }
+
 
     </script>
 </head>
 <body>
+<button onclick="loadImages()" value="asdad"></button>
 
 </body>
 </html>

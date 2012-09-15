@@ -1,19 +1,42 @@
+/**
+ * User: Jomaras
+ * Date: 15.09.12.
+ * Time: 10:29
+ */
 var ResourceManager = Class.extend({
-    init: function(images)
-    {
-        g_ResourceManager = this;
+   init: function(resources)
+   {
+       this.resources = resources;
+       this.resourceMapping = {};
+   },
 
-        this.imageProperties = [];
+   getResource: function(name)
+   {
+       return this.resourceMapping[name];
+   },
 
-        for ( var i = 0; i < images.length; i++ )
-        {
-            var thisImage = new Image();
+   loadResources: function(callbackFunction, thisObject)
+   {
+       var noOfLoadedImages = 0;
 
-            this[images[i].name] = thisImage;
+       for(var i = 0, length = this.resources.length; i < length; i++)
+       {
+           var resource = this.resources[i];
+           var image = new Image();
+           this.resourceMapping[resource.name] = image;
 
-            this.imageProperties.push(images[i].name);
+           image.onload = function()
+           {
+               noOfLoadedImages++;
 
-            thisImage.src = images[i].src;
-        }
-    }
+               if(noOfLoadedImages == length && callbackFunction != null)
+               {
+                    thisObject != null ? callbackFunction.call(thisObject)
+                                       : callbackFunction();
+               }
+           }
+
+           image.src = resource.src;
+       }
+   }
 });
