@@ -10,11 +10,11 @@ var GameObjectManager = Class.extend({
        this.backBuffer = null;
        this.backBufferContext2D = null;
 
-       g_GameObjectManager = this;
+       var gameObjectManager = this;
 
        // watch for keyboard events
-       document.onkeydown = function(event){ g_GameObjectManager.keyDown(event);}
-       document.onkeyup = function(event){ g_GameObjectManager.keyUp(event);}
+       document.onkeydown = function(event){ gameObjectManager.keyDown(event);}
+       document.onkeyup = function(event){ gameObjectManager.keyUp(event);}
 
        // get references to the canvas elements and their 2D contexts
        this.canvas = document.getElementById('canvas');
@@ -44,7 +44,7 @@ var GameObjectManager = Class.extend({
        this.resourceManager.loadResources(function()
        {
            this.createGameObjects();
-           setInterval(function(){ g_GameObjectManager.draw(); }, SECONDS_BETWEEN_FRAMES);
+           setInterval(function(){ gameObjectManager.draw(); }, SECONDS_BETWEEN_FRAMES);
        }, this);
     },
 
@@ -58,7 +58,7 @@ var GameObjectManager = Class.extend({
         this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background1"), 0, 100, 2, 600, 320, 0.5));
         this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background0"), 0, 0, 1, 600, 320, 0.25));
 
-        this.player = new Player(this.level, this.resourceManager);
+        this.player = new Player(this.level, this);
         this.gameObjects.push(this.player);
 
         this.gameObjects.sort(function(a, b) { return a.zOrder - b.zOrder; })
@@ -81,29 +81,20 @@ var GameObjectManager = Class.extend({
         {
             var gameObject = gameObjects[i];
 
-            if(gameObject && gameObject.update)
+            if(!gameObject) { continue; }
+
+            if(gameObject.update)
             {
                 gameObject.update(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
             }
-        }
 
-        for(var i = 0, length = gameObjects.length; i < length; i++)
-        {
-            var gameObject = gameObjects[i];
-
-            if(gameObject && gameObject.draw)
+            if(gameObject.draw)
             {
                 gameObject.draw(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
             }
         }
 
         this.context2D.drawImage(this.backBuffer, 0, 0);
-    },
-
-    addGameObject: function(gameObject)
-    {
-        this.gameObjects.push(gameObject);
-        this.gameObjects.sort(function(a,b){return a.zOrder - b.zOrder;})
     },
 
     removeGameObject: function(gameObject)
@@ -113,22 +104,26 @@ var GameObjectManager = Class.extend({
 
     keyDown: function(event)
     {
-        for (x in this.gameObjects)
+        for (var i = 0, length = this.gameObjects.length; i < length; i++)
         {
-            if (this.gameObjects[x].keyDown)
+            var gameObject = this.gameObjects[i];
+
+            if (gameObject.keyDown)
             {
-                this.gameObjects[x].keyDown(event);
+                gameObject.keyDown(event);
             }
         }
     },
 
     keyUp: function(event)
     {
-        for (x in this.gameObjects)
+        for (var i = 0, length = this.gameObjects.length; i < length; i++)
         {
-            if (this.gameObjects[x].keyUp)
+            var gameObject = this.gameObjects[i];
+
+            if (gameObject.keyUp)
             {
-                this.gameObjects[x].keyUp(event);
+                gameObject.keyUp(event);
             }
         }
     }

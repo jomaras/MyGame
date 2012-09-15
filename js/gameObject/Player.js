@@ -1,12 +1,13 @@
 var Player = AnimatedGameObject.extend({
-    init: function(level, resourceManager)
+    init: function(level, gameObjectManager)
     {
-        this.resourceManager = resourceManager;
+        this.gameObjectManager = gameObjectManager;
+        this.resourceManager = gameObjectManager.resourceManager;
 
-        this.idleLeft = resourceManager.getResource("idleLeft");
-        this.idleRight = resourceManager.getResource("idleRight");
-        this.runLeft = resourceManager.getResource("runLeft");
-        this.runRight = resourceManager.getResource("runRight");
+        this.idleLeft = this.resourceManager.getResource("idleLeft");
+        this.idleRight = this.resourceManager.getResource("idleRight");
+        this.runLeft = this.resourceManager.getResource("runLeft");
+        this.runRight = this.resourceManager.getResource("runRight");
 
         this._super(this.idleLeft, 300, 400 - 48 - 48, 4, 6, 20);
 
@@ -88,14 +89,11 @@ var Player = AnimatedGameObject.extend({
 
     update: function (dt, context, xScroll, yScroll)
     {
-        if (this.left)
-            this.x -= this.speed * dt;
-        if (this.right)
-            this.x += this.speed * dt;
+        if (this.left) { this.x -= this.speed * dt; }
+        if (this.right) { this.x += this.speed * dt;}
 
-        // XOR operation (JavaScript does not have a native XOR operator)
-        // only test for a collision if the player is moving left or right (and not trying to do both at
-        // the same time)
+        // only test for a collision if the player is moving left or right
+        // (and not trying to do both at the same time)
         if ((this.right || this.left) && !(this.left && this.right))
         {
             // this will be true until the player is no longer colliding
@@ -104,8 +102,7 @@ var Player = AnimatedGameObject.extend({
             // frame rate is very slow)
             do
             {
-                // the current position of the player (test the left side if running left
-                // and the right side if running right)
+                // the current position of the player (test the left side if running left and the right side if running right)
                 var xPos = this.left ? this.x : this.x + this.frameWidth;
                 // the index of stack of blocks that the player is standing on/in
                 var currentBlock = this.level.currentBlock(xPos);
@@ -121,7 +118,9 @@ var Player = AnimatedGameObject.extend({
                     collision = true;
                     // we are moving right, so push the player left
                     if (this.right)
+                    {
                         this.x = this.level.blockWidth * currentBlock - this.frameWidth - 1;
+                    }
                     // we are moving left, push the player right
                     else
                         this.x = this.level.blockWidth * (currentBlock + 1);
@@ -137,12 +136,12 @@ var Player = AnimatedGameObject.extend({
         if (this.x > this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1)
             this.x = this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1;
         if (this.x > context.canvas.width - this.frameWidth + xScroll -  this.screenBorder)
-            g_GameObjectManager.xScroll = this.x - (context.canvas.width - this.frameWidth -  this.screenBorder);
+            this.gameObjectManager.xScroll = this.x - (context.canvas.width - this.frameWidth -  this.screenBorder);
         // modify the xScroll value to keep the player on the screen
         if (this.x < 0)
             this.x = 0;
         if (this.x -  this.screenBorder < xScroll)
-            g_GameObjectManager.xScroll = this.x - this.screenBorder;
+            this.gameObjectManager.xScroll = this.x - this.screenBorder;
 
         // if the player is jumping or falling, move along the sine wave
         if (!this.grounded)
