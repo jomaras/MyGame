@@ -1,15 +1,15 @@
-var Player = AnimatedGameObject.extend({
+var Mummy = AnimatedGameObject.extend({
     init: function(level, gameObjectManager)
     {
         this.gameObjectManager = gameObjectManager;
         this.resourceManager = gameObjectManager.resourceManager;
 
-        this.idleLeft = this.resourceManager.getResource("idleLeft");
-        this.idleRight = this.resourceManager.getResource("idleRight");
-        this.runLeft = this.resourceManager.getResource("runLeft");
-        this.runRight = this.resourceManager.getResource("runRight");
+        this.idleLeft = this.resourceManager.getResource("mummy_idle_left");
+        this.idleRight = this.resourceManager.getResource("mummy_idle_right");
+        this.runLeft = this.resourceManager.getResource("mummy_walk_left");
+        this.runRight = this.resourceManager.getResource("mummy_walk_right");
 
-        this._super(this.idleRight, 20, 400 - 48 - 48, 4, 6, 20);
+        this._super(this.idleRight, 380, 500 - 48 - 48, 4, 6, 20);
 
         this.level = level;
         this.jumpHeight = 64;
@@ -23,63 +23,41 @@ var Player = AnimatedGameObject.extend({
         this.left = false;
         this.right = false;
         this.screenBorder = 20;
+
+        this.leftBoundX = 380;
+        this.rightBoundX = 600;
     },
 
-    isGoLeftKey: function(keyCode)
-    {
-        return KeyboardHelper.isLeft(keyCode) || KeyboardHelper.isA(keyCode);
-    },
-
-    isGoRightKey: function(keyCode)
-    {
-        return KeyboardHelper.isRight(keyCode) || KeyboardHelper.isD(keyCode);
-    },
-
-    isJumpKey: function(keyCode)
-    {
-        return KeyboardHelper.isSpace(keyCode)|| KeyboardHelper.isUp(keyCode) || KeyboardHelper.isW(keyCode);
-    },
-
-    keyDown: function(event)
+    goLeft: function()
     {
         var updateRequired = false;
 
-        if (this.isGoLeftKey(event.keyCode) && !this.left)
-        {
-            this.left = true;
-            updateRequired = true;
-        }
-        if (this.isGoRightKey(event.keyCode) && !this.right)
-        {
-            this.right = true;
-            updateRequired = true;
-        }
-        if (this.isJumpKey(event.keyCode) && this.grounded)
-        {
-            this.grounded = false;
-            this.jumpSinWavePos = 0;
-        }
+        this.right = false;
 
-        if (updateRequired)
+        if(!this.left) { updateRequired = true; }
+
+        this.left = true;
+
+        if(updateRequired)
         {
             this.updateAnimation();
         }
     },
 
-    keyUp: function(event)
+    goRight: function()
     {
-        if (this.isGoLeftKey(event.keyCode))
-        {
-            this.left = false;
-            this.setAnimation(this.idleLeft, 6, 20);
-        }
-        if (this.isGoRightKey(event.keyCode))
-        {
-            this.right = false;
-            this.setAnimation(this.idleRight, 6, 20);
-        }
+        var updateRequired = false;
 
-        this.updateAnimation();
+        this.left = false;
+
+        if(!this.right) { updateRequired = true; }
+
+        this.right = true;
+
+        if(updateRequired)
+        {
+            this.updateAnimation();
+        }
     },
 
     updateAnimation: function()
@@ -145,16 +123,7 @@ var Player = AnimatedGameObject.extend({
             this.x = this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1;
         }
 
-        var xScroll = this.x - (context.canvas.width/2) - this.screenBorder;
-
-        if(xScroll < 0) { xScroll = 0; }
-
-        this.gameObjectManager.xScroll = xScroll;
-
-        if (this.x < 0)
-        {
-            this.x = 0;
-        }
+        if (this.x < 0) { this.x = 0; }
 
         // if the player is jumping or falling, move along the sine wave
         if (!this.grounded)
@@ -206,6 +175,16 @@ var Player = AnimatedGameObject.extend({
             this.grounded = false;
             // starting falling down the sine wave (i.e. from the top)
             this.jumpSinWavePos = this.halfPI;
+        }
+
+        if(this.x <= this.leftBoundX)
+        {
+            this.goRight();
+        }
+
+        if(this.x >= this.rightBoundX)
+        {
+            this.goLeft();
         }
     }
 });

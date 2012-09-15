@@ -30,15 +30,20 @@ var GameObjectManager = Class.extend({
        // create a new ResourceManager
        this.resourceManager = new ResourceManager
        ([
-           {name: 'runLeft', src: 'images/run_left.png'},
-           {name: 'runRight', src: 'images/run_right.png'},
-           {name: 'idleLeft', src: 'images/idle_left.png'},
-           {name: 'idleRight', src: 'images/idle_right.png'},
-           {name: 'background0', src: 'images/jsplatformer4_b0.png'},
-           {name: 'background1', src: 'images/jsplatformer4_b1.png'},
-           {name: 'background2', src: 'images/jsplatformer4_b2.png'},
-           {name: 'block', src: 'images/BlockA0.png'},
-           {name: 'gem', src: 'images/Gem.png'}
+           { name: 'runLeft', src: 'images/run_left.png'},
+           { name: 'runRight', src: 'images/run_right.png'},
+           { name: 'idleLeft', src: 'images/idle_left.png'},
+           { name: 'idleRight', src: 'images/idle_right.png'},
+           { name: 'background0', src: 'images/jsplatformer4_b0.png'},
+           { name: 'background1', src: 'images/jsplatformer4_b1.png'},
+           { name: 'background2', src: 'images/jsplatformer4_b2.png'},
+           { name: 'block', src: 'images/BlockA0.png'},
+           { name: 'gem', src: 'images/Gem.png'},
+
+           { name: 'mummy_idle_left', src: 'images/mummy_idle_left.png'},
+           { name: 'mummy_idle_right', src: 'images/mummy_idle_right.png'},
+           { name: 'mummy_walk_left', src: 'images/mummy_walk_left.png'},
+           { name: 'mummy_walk_right', src: 'images/mummy_walk_right.png'}
        ]);
 
        this.resourceManager.loadResources(function()
@@ -54,12 +59,13 @@ var GameObjectManager = Class.extend({
         this.gameObjects.push(this.level);
         ValueTypeHelper.pushAll(this.gameObjects, this.level.getGameObjects());
 
-        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background2"), 0, 100, 3, 600, 320, 0.75));
-        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background1"), 0, 100, 2, 600, 320, 0.5));
-        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background0"), 0, 0, 1, 600, 320, 0.25));
+        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background2"), 0, 100, 3, this.canvas.width, 320, 0.75));
+        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background1"), 0, 100, 2, this.canvas.width, 320, 0.5));
+        this.gameObjects.push(new RepeatingGameObject(this.resourceManager.getResource("background0"), 0, 0, 1, this.canvas.width, 320, 0.25));
 
         this.player = new Player(this.level, this);
         this.gameObjects.push(this.player);
+        this.gameObjects.push(new Mummy(this.level, this));
 
         this.gameObjects.sort(function(a, b) { return a.zOrder - b.zOrder; })
     },
