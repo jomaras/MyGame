@@ -1,4 +1,4 @@
-Ostro.GLOBALS.FPS = 30;
+Ostro.GLOBALS.FPS = 25;
 Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES = 1 / Ostro.GLOBALS.FPS;
 
 window.onload = function ()
@@ -56,7 +56,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        {
            this.createGameObjects();
 
-           setInterval(function(){ gameManager.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
+           setTimeout(function(){ gameManager.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
        }, this);
 
        document.onkeydown = function(event){ gameManager.keyDown(event);}
@@ -154,11 +154,6 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         var dt = (thisFrame - this.lastFrame)/1000;
         this.lastFrame = thisFrame;
 
-        if(this._INDEX++ % 500 == 0)
-        {
-            console.log((new Date()) - this.startTime);
-        }
-
         // clear the drawing contexts
         this.backBufferContext2D.clearRect(0, 0, this.backBuffer.width, this.backBuffer.height);
         this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -183,6 +178,8 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         }
 
         this.context2D.drawImage(this.backBuffer, 0, 0);
+
+        setTimeout(function(){ Ostro.GLOBALS.GAME_MANAGER.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
     },
 
     removeGameObject: function(gameObject)
