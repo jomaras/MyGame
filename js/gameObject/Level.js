@@ -4,6 +4,8 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
        this.resourceManager = resourceManager;
 
        this.blocks = [];
+       this.powerups = {};
+       this.powerupItems = [];
        this.blockItems = [];
        this.blockWidth = 64;
        this.blockHeight = 48;
@@ -25,12 +27,15 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
        this.blocks[14] = 4;
        this.blocks[15] = 4;
 
+       this.powerups[14] = 'Gem';
+
        this.addBlocks(canvasWidth, canvasHeight);
+       this.addPowerups(canvasWidth, canvasHeight);
    },
 
    getGameObjects: function()
    {
-       return this.blockItems;
+       return this.blockItems.concat(this.powerupItems);
    },
 
    addBlocks: function(canvasWidth, canvasHeight)
@@ -42,6 +47,26 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
                 this.blockItems.push(new Ostro.GameObject.Model.VisualGameObject(this.resourceManager.getResource("block"), x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4));
             }
         }
+   },
+
+   addPowerups: function(canvasWidth, canvasHeight)
+   {
+       var gemImage = this.resourceManager.getResource("gem");
+       for (var x = 0; x < this.blocks.length; ++x)
+       {
+           if (this.powerups[x])
+           {
+               var xPosition = x * this.blockWidth + this.blockWidth / 2;
+               var yPosition = canvasHeight - this.groundHeight(x);
+
+               switch(this.powerups[x])
+               {
+                   case 'Gem':
+                       this.powerupItems.push(new Ostro.GameObject.Powerup(gemImage, xPosition - gemImage.width / 2, yPosition - gemImage.height, 4, 1, 1));
+                       break;
+               }
+           }
+       }
    },
 
    currentBlock: function(x)

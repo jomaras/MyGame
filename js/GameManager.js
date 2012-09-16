@@ -19,6 +19,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        this.backBufferContext2D = null;
 
        var gameManager = this;
+       Ostro.GLOBALS.GAME_MANAGER = this;
 
        // get references to the canvas elements and their 2D contexts
        this.canvas = document.getElementById('canvas');
@@ -59,32 +60,61 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        document.onkeydown = function(event){ gameManager.keyDown(event);}
        document.onkeyup = function(event){ gameManager.keyUp(event); }
 
-       var isMouseCaptured;
+       var isMouseCapturedCanvas;
+       var isMouseCapturedClock;
        var previousCapturePoint = null;
 
        this.canvas.onmousedown = function(event)
        {
-           isMouseCaptured = true;
+           gameManager.clock.isPointWithin(event.offsetX, event.offsetY)
+                      ? isMouseCapturedClock = true
+                      : isMouseCapturedCanvas = true;
 
-           gameManager.canvas.onmousemove = function(mouseMoveEvent)
+           if(event.button == 2 && isMouseCapturedCanvas)
            {
-               if(previousCapturePoint != null)
+               gameManager.canvas.onmousemove = function(mouseMoveEvent)
                {
-                   var deltaX = mouseMoveEvent.pageX - previousCapturePoint.x;
-                   gameManager.xScroll -= (deltaX) * 0.5;
-               }
+                   if(previousCapturePoint != null)
+                   {
+                       var deltaX = mouseMoveEvent.pageX - previousCapturePoint.x;
+                       gameManager.xScroll -= (deltaX) * 0.5;
+                   }
 
-               previousCapturePoint = { x: mouseMoveEvent.pageX, y: mouseMoveEvent.pageY };
+                   previousCapturePoint = { x: mouseMoveEvent.pageX, y: mouseMoveEvent.pageY };
+               }
            }
+
+           if(isMouseCapturedClock)
+           {
+               gameManager.canvas.onmousemove = function(mouseMoveEvent)
+               {
+                    gameManager.clock.onMouseDrag(mouseMoveEvent.offsetX, mouseMoveEvent.offsetY);
+               }
+           }
+
+           return false;
        };
 
         document.onmouseup = function(event)
         {
-            isMouseCaptured = false;
-            previousCapturePoint = null;
+            if(event.button == 2 && isMouseCapturedCanvas)
+            {
+                isMouseCapturedCanvas = false;
+                previousCapturePoint = null;
 
-            gameManager.canvas.onmousemove = null;
-        }
+                gameManager.canvas.onmousemove = null;
+            }
+
+            if(isMouseCapturedClock)
+            {
+                isMouseCapturedClock = false;
+                previousCapturePoint = null;
+
+                gameManager.canvas.onmousemove = null;
+            }
+        };
+
+        document.oncontextmenu = function() { return false; };
     },
 
     createGameObjects: function()
@@ -99,7 +129,12 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
         this.player = new Ostro.GameObject.Player(this.level, this);
         this.gameObjects.push(this.player);
+
         this.gameObjects.push(new Ostro.GameObject.Mummy(this.level, this));
+
+        this.clock = new Ostro.GameObject.Clock(50, 50, 4);
+
+        this.gameObjects.push(this.clock);
 
         this.gameObjects.sort(function(a, b) { return a.zOrder - b.zOrder; })
     },
