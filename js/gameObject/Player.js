@@ -1,8 +1,8 @@
 Ostro.GameObject.Player = Ostro.GameObject.Model.AnimatedGameObject.extend({
-    init: function(level, gameObjectManager)
+    init: function(level, gameManager)
     {
-        this.gameObjectManager = gameObjectManager;
-        this.resourceManager = gameObjectManager.resourceManager;
+        this.gameManager = gameManager;
+        this.resourceManager = gameManager.resourceManager;
 
         this.idleLeft = this.resourceManager.getResource("idleLeft");
         this.idleRight = this.resourceManager.getResource("idleRight");

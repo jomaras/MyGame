@@ -1,4 +1,12 @@
-Ostro.GameObjectManager = Ostro.OO.Class.extend({
+Ostro.GLOBALS.FPS = 30;
+Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES = 1 / Ostro.GLOBALS.FPS;
+
+window.onload = function ()
+{
+    new Ostro.GameManager();
+};
+
+Ostro.GameManager = Ostro.OO.Class.extend({
     init: function()
     {
        this.gameObjects = [];
@@ -10,11 +18,7 @@ Ostro.GameObjectManager = Ostro.OO.Class.extend({
        this.backBuffer = null;
        this.backBufferContext2D = null;
 
-       var gameObjectManager = this;
-
-       // watch for keyboard events
-       document.onkeydown = function(event){ gameObjectManager.keyDown(event);}
-       document.onkeyup = function(event){ gameObjectManager.keyUp(event);}
+       var gameManager = this;
 
        // get references to the canvas elements and their 2D contexts
        this.canvas = document.getElementById('canvas');
@@ -49,8 +53,38 @@ Ostro.GameObjectManager = Ostro.OO.Class.extend({
        this.resourceManager.loadResources(function()
        {
            this.createGameObjects();
-           setInterval(function(){ gameObjectManager.draw(); }, SECONDS_BETWEEN_FRAMES);
+           setInterval(function(){ gameManager.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
        }, this);
+
+       document.onkeydown = function(event){ gameManager.keyDown(event);}
+       document.onkeyup = function(event){ gameManager.keyUp(event); }
+
+       var isMouseCaptured;
+       var previousCapturePoint = null;
+
+       this.canvas.onmousedown = function(event)
+       {
+           isMouseCaptured = true;
+
+           gameManager.canvas.onmousemove = function(mouseMoveEvent)
+           {
+               if(previousCapturePoint != null)
+               {
+                   var deltaX = mouseMoveEvent.pageX - previousCapturePoint.x;
+                   gameManager.xScroll -= (deltaX) * 0.5;
+               }
+
+               previousCapturePoint = { x: mouseMoveEvent.pageX, y: mouseMoveEvent.pageY };
+           }
+       };
+
+        document.onmouseup = function(event)
+        {
+            isMouseCaptured = false;
+            previousCapturePoint = null;
+
+            gameManager.canvas.onmousemove = null;
+        }
     },
 
     createGameObjects: function()
