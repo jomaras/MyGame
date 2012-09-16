@@ -1,4 +1,4 @@
-var Player = AnimatedGameObject.extend({
+Ostro.GameObject.Player = Ostro.GameObject.Model.AnimatedGameObject.extend({
     init: function(level, gameObjectManager)
     {
         this.gameObjectManager = gameObjectManager;
@@ -27,17 +27,19 @@ var Player = AnimatedGameObject.extend({
 
     isGoLeftKey: function(keyCode)
     {
-        return KeyboardHelper.isLeft(keyCode) || KeyboardHelper.isA(keyCode);
+        return Ostro.Helpers.KeyboardHelper.isLeft(keyCode) || Ostro.Helpers.KeyboardHelper.isA(keyCode);
     },
 
     isGoRightKey: function(keyCode)
     {
-        return KeyboardHelper.isRight(keyCode) || KeyboardHelper.isD(keyCode);
+        return Ostro.Helpers.KeyboardHelper.isRight(keyCode) || Ostro.Helpers.KeyboardHelper.isD(keyCode);
     },
 
     isJumpKey: function(keyCode)
     {
-        return KeyboardHelper.isSpace(keyCode)|| KeyboardHelper.isUp(keyCode) || KeyboardHelper.isW(keyCode);
+        return Ostro.Helpers.KeyboardHelper.isSpace(keyCode)
+            || Ostro.Helpers.KeyboardHelper.isUp(keyCode)
+            || Ostro.Helpers.KeyboardHelper.isW(keyCode);
     },
 
     keyDown: function(event)
@@ -145,11 +147,11 @@ var Player = AnimatedGameObject.extend({
             this.x = this.level.blocks.length * this.level.blockWidth - this.frameWidth - 1;
         }
 
-        var xScroll = this.x - (context.canvas.width/2) - this.screenBorder;
+        /*var xScroll = this.x - (context.canvas.width/2) - this.screenBorder;
 
         if(xScroll < 0) { xScroll = 0; }
 
-        this.gameObjectManager.xScroll = xScroll;
+        this.gameObjectManager.xScroll = xScroll;*/
 
         if (this.x < 0)
         {

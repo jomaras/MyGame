@@ -1,4 +1,4 @@
-﻿ValueTypeHelper =
+﻿Ostro.Helpers.ValueTypeHelper =
 {
     isOfType: function (variable, className)
     {

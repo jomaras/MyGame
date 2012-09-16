@@ -1,4 +1,4 @@
-var GameObject = Class.extend
+Ostro.GameObject.Model.GameObject = Ostro.OO.Class.extend
 ({
     init: function(x, y, z)
     {

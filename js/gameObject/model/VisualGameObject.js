@@ -1,4 +1,4 @@
-var VisualGameObject = GameObject.extend
+Ostro.GameObject.Model.VisualGameObject = Ostro.GameObject.Model.GameObject.extend
 ({
     init: function(image, x, y, z)
     {
@@ -14,6 +14,6 @@ var VisualGameObject = GameObject.extend
 
     collisionArea: function()
     {
-        return new Rectangle(this.x, this.y, this.image.width, this.image.height);
+        return new Ostro.Geometry.Rectangle(this.x, this.y, this.image.width, this.image.height);
     }
 });

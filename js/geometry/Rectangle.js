@@ -1,4 +1,4 @@
-var Rectangle = Class.extend({
+Ostro.Geometry.Rectangle = Ostro.OO.Class.extend({
 
     init: function(left, top, width, height)
     {

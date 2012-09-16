@@ -1,1 +1,11 @@
-var Ostro = {};
+var Ostro =
+{
+    GameObject:
+    {
+        Model: {}
+    },
+    Geometry: {},
+    Helpers: {},
+    OO: {},
+    GLOBALS: {}
+};

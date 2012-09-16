@@ -1,5 +1,4 @@
-
-var AnimatedGameObject = VisualGameObject.extend({
+Ostro.GameObject.Model.AnimatedGameObject = Ostro.GameObject.Model.VisualGameObject.extend({
     init: function(image, x, y, z, frameCount, fps)
     {
         if (frameCount <= 0) { alert("Frame count can not be null!")};
@@ -43,6 +42,6 @@ var AnimatedGameObject = VisualGameObject.extend({
 
      collisionArea: function()
      {
-        return new Rectangle(this.x, this.y, this.frameWidth, this.image.height);
+        return new Ostro.Geometry.Rectangle(this.x, this.y, this.frameWidth, this.image.height);
      }
 });

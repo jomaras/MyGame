@@ -1,4 +1,4 @@
-var Mummy = AnimatedGameObject.extend({
+Ostro.GameObject.Mummy = Ostro.GameObject.Model.AnimatedGameObject.extend({
     init: function(level, gameObjectManager)
     {
         this.gameObjectManager = gameObjectManager;

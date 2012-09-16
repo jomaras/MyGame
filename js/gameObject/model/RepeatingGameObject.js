@@ -1,4 +1,4 @@
-var RepeatingGameObject = VisualGameObject.extend({
+Ostro.GameObject.Model.RepeatingGameObject = Ostro.GameObject.Model.VisualGameObject.extend({
     init: function(image, x, y, z, width, height, scrollFactor)
     {
         this._super(image, x, y, z);

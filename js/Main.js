@@ -3,5 +3,5 @@ var SECONDS_BETWEEN_FRAMES = 1 / FPS;
 
 window.onload = function ()
 {
-    new GameObjectManager();
+    new Ostro.GameObjectManager();
 };

@@ -1,9 +1,4 @@
-/**
- * User: Jomaras
- * Date: 15.09.12.
- * Time: 10:29
- */
-var ResourceManager = Class.extend({
+Ostro.ResourceManager = Ostro.OO.Class.extend({
    init: function(resources)
    {
        this.resources = resources;

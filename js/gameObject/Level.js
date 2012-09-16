@@ -1,4 +1,4 @@
-var Level = Class.extend({
+Ostro.GameObject.Level = Ostro.OO.Class.extend({
    init: function(canvasWidth, canvasHeight, resourceManager)
    {
        this.resourceManager = resourceManager;
@@ -39,7 +39,7 @@ var Level = Class.extend({
         {
             for (var y = 0; y < this.blocks[x]; ++y)
             {
-                this.blockItems.push(new VisualGameObject(this.resourceManager.getResource("block"), x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4));
+                this.blockItems.push(new Ostro.GameObject.Model.VisualGameObject(this.resourceManager.getResource("block"), x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4));
             }
         }
    },
