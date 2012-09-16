@@ -91,10 +91,17 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
            if(isMouseCapturedClock)
            {
+               gameManager.pause();
+
                gameManager.canvas.onmousemove = function(mouseMoveEvent)
                {
-                    gameManager.clock.onMouseDrag(mouseMoveEvent.pageX - gameManager.canvas.offsetLeft,
-                                                  mouseMoveEvent.pageY - gameManager.canvas.offsetTop);
+                   gameManager.clock.onMouseDrag(mouseMoveEvent.pageX - gameManager.canvas.offsetLeft,
+                                                 mouseMoveEvent.pageY - gameManager.canvas.offsetTop);
+
+                   if(gameManager.clock.changeInDegrees > 0)
+                   {
+                       gameManager.historyChange = Math.round(gameManager.clock.changeInDegrees);
+                   }
                }
            }
 
@@ -117,6 +124,10 @@ Ostro.GameManager = Ostro.OO.Class.extend({
                 previousCapturePoint = null;
 
                 gameManager.canvas.onmousemove = null;
+
+                gameManager.unPause();
+
+                this.historyChange = null;
             }
         };
 
@@ -145,8 +156,6 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         this.gameObjects.sort(function(a, b) { return a.zOrder - b.zOrder; })
     },
 
-    _INDEX: 1,
-
     draw: function ()
     {
         // calculate the time since the last frame
@@ -166,20 +175,39 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
             if(!gameObject) { continue; }
 
-            if(gameObject.update)
-            {
-                gameObject.update(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
-            }
-
-            if(gameObject.draw)
-            {
-                gameObject.draw(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
-            }
+            gameObject.update && gameObject.update(dt, this.backBufferContext2D, this.xScroll, this.yScroll, this.historyChange);
+            gameObject.draw && gameObject.draw(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
         }
 
         this.context2D.drawImage(this.backBuffer, 0, 0);
 
+        if(this.historyChange) { this.historyChange--;}
+
         setTimeout(function(){ Ostro.GLOBALS.GAME_MANAGER.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
+    },
+
+    pause: function()
+    {
+        var gameObjects = this.gameObjects
+
+        for(var i = 0, length = gameObjects.length; i < length; i++)
+        {
+            var gameObject = gameObjects[i];
+
+            gameObject.pause && gameObject.pause();
+        }
+    },
+
+    unPause: function()
+    {
+        var gameObjects = this.gameObjects
+
+        for(var i = 0, length = gameObjects.length; i < length; i++)
+        {
+            var gameObject = gameObjects[i];
+
+            gameObject.unPause && gameObject.unPause();
+        }
     },
 
     removeGameObject: function(gameObject)

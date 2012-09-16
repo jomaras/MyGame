@@ -12,6 +12,14 @@ Ostro.GameObject.Model.AnimatedGameObject = Ostro.GameObject.Model.VisualGameObj
         this.frameWidth = this.image.width / this.frameCount;
     },
 
+    setSpriteIndex: function()
+    {
+        if(this.sprites != null)
+        {
+            this.spriteIndex = this.sprites.indexOf(this.image);
+        }
+    },
+
     setAnimation: function(image, frameCount, fps)
     {
         if (frameCount <= 0) throw "framecount can not be <= 0";
@@ -23,6 +31,7 @@ Ostro.GameObject.Model.AnimatedGameObject = Ostro.GameObject.Model.VisualGameObj
         this.timeBetweenFrames = 1/fps;
         this.timeSinceLastFrame = this.timeBetweenFrames;
         this.frameWidth = this.image.width / this.frameCount;
+        this.setSpriteIndex();
     },
 
     draw: function(deltaTime, context, xScroll, yScroll)
@@ -38,6 +47,8 @@ Ostro.GameObject.Model.AnimatedGameObject = Ostro.GameObject.Model.VisualGameObj
             this.currentFrame++;
             this.currentFrame %= this.frameCount;
         }
+
+        this.sourceX = sourceX;
      },
 
      collisionArea: function()

@@ -4,6 +4,7 @@ Ostro.GameObject.Clock = Ostro.GameObject.Model.GameObject.extend({
         this._super(x, y, z);
 
         this.totalTime = 0;
+        this.angleInDegrees = 0;
 
         this.degreesPerSecond = 6;
 
@@ -43,18 +44,18 @@ Ostro.GameObject.Clock = Ostro.GameObject.Model.GameObject.extend({
 
     _getAngleInSeconds: function(deltaX, deltaY)
     {
-        var angleInDegrees = 90 + Math.atan((deltaY - this.y)/(deltaX - this.x)) * 180 / Math.PI;
+        var oldAngleInDegrees = this.angleInDegrees;
 
-        if(deltaY > this.y && deltaX < this.x)
+        this.angleInDegrees = 90 + Math.atan((deltaY - this.y)/(deltaX - this.x)) * 180 / Math.PI;
+
+        if(deltaX < this.x)
         {
-            angleInDegrees += 180;
-        }
-        else if (deltaY <= this.y && deltaX < this.x)
-        {
-            angleInDegrees -= 180;
+            this.angleInDegrees += 180;
         }
 
-        var seconds = angleInDegrees / this.degreesPerSecond;
+        var seconds = this.angleInDegrees / this.degreesPerSecond;
+
+        this.changeInDegrees = oldAngleInDegrees - this.angleInDegrees;
 
         return seconds;
     }

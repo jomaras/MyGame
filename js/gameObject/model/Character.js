@@ -12,7 +12,12 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         this.runLeft = configMap.runLeft.image;
         this.runRight = configMap.runRight.image;
 
+        this.sprites = [this.idleLeft, this.idleRight, this.runLeft, this.runRight];
+        this.frameCounts = [configMap.idleLeft.frameCount, configMap.idleRight.frameCount, configMap.runLeft.frameCount, configMap.runRight.frameCount]
+
         this._super(this.idleRight, configMap.x, configMap.y, configMap.z, configMap.idleRight.frameCount, 20);
+
+        this.spriteIndex = this.sprites.indexOf(this.image);
 
         this.level = level;
         this.jumpHeight = configMap.jumpHeight || 64;
@@ -27,13 +32,13 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         this.right = false;
         this.screenBorder = 20;
 
-        this.defaultDelta = 0.010;
-
         if(!configMap.isPlayerCharacter)
         {
             this.keyDown = null;
             this.keyUp = null;
         }
+
+        this.history = [];
     },
 
     isGoLeftKey: function(keyCode)
@@ -55,6 +60,8 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
     keyDown: function(event)
     {
+        if(this.isPaused) { return; }
+
         var updateRequired = false;
 
         if (this.isGoLeftKey(event.keyCode) && !this.left)
@@ -81,6 +88,8 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
     keyUp: function(event)
     {
+        if(this.isPaused) { return; }
+
         if (this.isGoLeftKey(event.keyCode))
         {
             this.left = false;
@@ -97,6 +106,8 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
     goLeft: function()
     {
+        if(this.isPaused) { return; }
+
         var updateRequired = false;
 
         this.right = false;
@@ -113,6 +124,8 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
     goRight: function()
     {
+        if(this.isPaused) { return; }
+
         var updateRequired = false;
 
         this.left = false;
@@ -125,6 +138,16 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         {
             this.updateAnimation();
         }
+    },
+
+    pause: function()
+    {
+        this.isPaused = true;
+    },
+
+    unPause: function()
+    {
+        this.isPaused = false;
     },
 
     updateAnimation: function()
@@ -143,14 +166,33 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         }
     },
 
-    update: function (dt, context, xScroll, yScroll)
+    updateCounter: 0,
+
+    update: function (dt, context, xScroll, yScroll, historyChange)
     {
-        if (this.left) { this.x -= this.speed * dt; }
-        if (this.right) { this.x += this.speed * dt;}
+        if(this.isPaused && !historyChange) { return }
+
+        if(!historyChange)
+        {
+            if (this.left) { this.x -= this.speed * dt; }
+            if (this.right) { this.x += this.speed * dt; }
+        }
+        else
+        {
+            var historyPoint = this.history.pop();
+
+            if(historyPoint != null)
+            {
+                this.x =  historyPoint.x;
+                this.y = historyPoint.y;
+
+                this.setAnimation(this.sprites[historyPoint.spriteIndex], this.frameCounts[historyPoint.spriteIndex], 20);
+            }
+        }
 
         // only test for a collision if the player is moving left or right
         // (and not trying to do both at the same time)
-        if ((this.right || this.left) && !(this.left && this.right))
+        if ((this.right || this.left) && !(this.left && this.right) && !this.isPaused)
         {
             // this will be true until the player is no longer colliding
             var collision = false;
@@ -175,7 +217,7 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
                     // push to the other side
                     this.x = this.right ? this.level.blockWidth * currentBlock - this.frameWidth - 1
-                        : this.level.blockWidth * (currentBlock + 1);
+                                        : this.level.blockWidth * (currentBlock + 1);
                 }
                 else
                 {
@@ -197,14 +239,13 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
          this.gameObjectManager.xScroll = xScroll;*/
 
-
         if (this.x < 0)
         {
             this.x = 0;
         }
 
         // if the player is jumping or falling, move along the sine wave
-        if (!this.grounded)
+        if (!this.grounded && !this.isPaused)
         {
             // the last position on the sine wave
             var lastHeight = this.jumpSinWavePos;
@@ -253,6 +294,17 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
             this.grounded = false;
             // starting falling down the sine wave (i.e. from the top)
             this.jumpSinWavePos = this.halfPI;
+        }
+
+        if(!this.isPaused)
+        {
+            this.updateCounter++;
+
+            if(this.updateCounter % 5 == 0)
+            {
+                this.history.push({x: this.x, y: this.y, spriteIndex: this.spriteIndex});
+                this.updateCounter = 0;
+            }
         }
     }
 });
