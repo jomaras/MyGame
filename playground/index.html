@@ -1,206 +1,45 @@
 <HTML>
 <HEAD>
 <TITLE> Analog Clock </TITLE>
-<script type="text/javascript">
+<script>
+    var Ostro = {OO:{}};
+</script>
+<script type="text/javascript" src="../js/oo/Class.js"></script>
+<script>
+    var A = Ostro.OO.Class.extend({
+       init: function()
+       {
 
-window.CoolClock = function(canvasId,displayRadius,skinId,showSecondHand,gmtOffset)
-{
-    return this.init(canvasId,displayRadius,skinId,showSecondHand,gmtOffset);
-}
+       },
 
-CoolClock.findAndCreateClocks = function()
-{
-    var canvases = document.getElementsByTagName("canvas");
-    for (var i = 0; i < canvases.length; i++)
-    {
-        var fields = canvases[i].className.split(" ")[0].split(":");
-        if (fields[0] == "CoolClock")
+       test: function()
+       {
+           console.log("Log a");
+       },
+
+       something: function()
+       {
+
+       }
+    });
+
+    var B = A.extend({
+       init: function()
+       {
+           this._super();
+       },
+
+        test: function()
         {
-            new CoolClock(canvases[i].id,fields[2],fields[1],fields[3]!="noSeconds",fields[4]);
+            console.log("Log b");
         }
-    }
-}
+    });
 
-CoolClock.addLoadEvent = function(func)
-{
-    var oldonload = window.onload;
-    if (typeof window.onload != 'function')
-        window.onload = func;
-    else
-        window.onload = function()
-        {
-            oldonload();
-            func();
-        }
-}
-
-CoolClock.config =
-{
-    clockTracker: {},
-    tickDelay: 1000,
-    longTickDelay: 15000,
-    defaultRadius: 42,
-    renderRadius: 50,
-    defaultSkin: "swissRail",
-    skins:
-    {
-        swissRail:
-        {
-            outerBorder: { lineWidth: 1, radius:47, color: "black", alpha: 1 },
-            smallIndicator: { lineWidth: 2, startAt: 44, endAt: 48, color: "black", alpha: 1 },
-            largeIndicator: { lineWidth: 4, startAt: 40, endAt: 48, color: "black", alpha: 1 },
-            hourHand: { lineWidth: 5, startAt: -10, endAt: 25, color: "black", alpha: 1 },
-            minuteHand: { lineWidth: 3, startAt: -10, endAt: 37, color: "black", alpha: 1 },
-            secondHand: { lineWidth: 1, startAt: -10, endAt: 40, color: "red", alpha: 1 },
-            secondDecoration: { lineWidth: 1, startAt: 40, radius: 2, fillColor: "red", color: "red", alpha: 1 }
-        }
-    }
-};
-
-CoolClock.prototype =
-{
-    init: function(canvasId,displayRadius,skinId,showSecondHand,gmtOffset) {
-        this.canvasId = canvasId;
-        this.displayRadius = displayRadius || CoolClock.config.defaultRadius;
-        this.skinId = skinId || CoolClock.config.defaultSkin;
-        this.showSecondHand = typeof showSecondHand == "boolean" ? showSecondHand : true;
-        this.tickDelay = CoolClock.config[ this.showSecondHand ? "tickDelay" : "longTickDelay"];
-
-        this.canvas = document.getElementById(canvasId);
-
-        this.canvas.setAttribute("width",this.displayRadius*2);
-        this.canvas.setAttribute("height",this.displayRadius*2);
-
-        this.canvas.style.width = this.displayRadius*2 + "px";
-        this.canvas.style.height = this.displayRadius*2 + "px";
-
-        this.renderRadius = CoolClock.config.renderRadius;
-
-        this.scale = this.displayRadius / this.renderRadius;
-        this.ctx = this.canvas.getContext("2d");
-        this.ctx.scale(this.scale,this.scale);
-
-        this.gmtOffset = gmtOffset != null ? parseFloat(gmtOffset) : gmtOffset;
-
-        CoolClock.config.clockTracker[canvasId] = this;
-        this.tick();
-        return this;
-    },
-    fullCircle: function(skin)
-    {
-        this.fullCircleAt(this.renderRadius,this.renderRadius,skin);
-    },
-    fullCircleAt: function(x,y,skin)
-    {
-        with (this.ctx)
-        {
-            save();
-            globalAlpha = skin.alpha;
-            lineWidth = skin.lineWidth;
-            if (!document.all)
-                beginPath();
-            if (document.all)
-                lineWidth = lineWidth * this.scale;
-            arc(x, y, skin.radius, 0, 2*Math.PI, false);
-            if (document.all)
-                arc(x, y, skin.radius, -0.1, 0.1, false);
-            if (skin.fillColor)
-            {
-                fillStyle = skin.fillColor
-                fill();
-            }
-            else
-            {
-                strokeStyle = skin.color;
-                stroke();
-            }
-            restore();
-        }
-    },
-
-    radialLineAtAngle: function(angleFraction,skin)
-    {
-        with (this.ctx) {
-            save();
-            translate(this.renderRadius,this.renderRadius);
-            rotate(Math.PI * (2 * angleFraction - 0.5));
-            globalAlpha = skin.alpha;
-            strokeStyle = skin.color;
-            lineWidth = skin.lineWidth;
-            if (document.all)
-                lineWidth = lineWidth * this.scale;
-            if (skin.radius)
-            {
-                this.fullCircleAt(skin.startAt,0,skin)
-            }
-            else
-            {
-                beginPath();
-                moveTo(skin.startAt,0)
-                lineTo(skin.endAt,0);
-                stroke();
-            }
-            restore();
-        }
-    },
-    render: function(hour,min,sec)
-    {
-        var skin = CoolClock.config.skins[this.skinId];
-        this.ctx.clearRect(0,0,this.renderRadius*2,this.renderRadius*2);
-
-        this.fullCircle(skin.outerBorder);
-
-        for (var i=0;i<60;i++)
-            this.radialLineAtAngle(i/60,skin[ i%5 ? "smallIndicator" : "largeIndicator"]);
-
-        this.radialLineAtAngle((hour+min/60)/12,skin.hourHand);
-        this.radialLineAtAngle((min+sec/60)/60,skin.minuteHand);
-        if (this.showSecondHand)
-        {
-            this.radialLineAtAngle(sec/60,skin.secondHand);
-            if (!document.all)
-                this.radialLineAtAngle(sec/60,skin.secondDecoration);
-        }
-    },
-    nextTick: function()
-    {
-        setTimeout("CoolClock.config.clockTracker['"+this.canvasId+"'].tick()",this.tickDelay);
-    },
-
-    stillHere: function()
-    {
-        return document.getElementById(this.canvasId) != null;
-    },
-    refreshDisplay: function()
-    {
-        var now = new Date();
-        if (this.gmtOffset != null)
-        {
-            var offsetNow = new Date(now.valueOf() + (this.gmtOffset * 1000 * 60 * 60));
-            this.render(offsetNow.getUTCHours(),offsetNow.getUTCMinutes(),offsetNow.getUTCSeconds());
-        }
-        else
-        {
-            this.render(now.getHours(), now.getMinutes(), now.getSeconds());
-        }
-    },
-    tick: function()
-    {
-        if (this.stillHere())
-        {
-            this.refreshDisplay()
-            this.nextTick();
-        }
-    }
-}
-
-CoolClock.addLoadEvent(CoolClock.findAndCreateClocks);
-
-
+    var b = new B();
+    b.test();
 </script>
 </HEAD>
 
 <BODY>
-<canvas id="c1" class="CoolClock"></canvas>
 </BODY>
 </HTML>

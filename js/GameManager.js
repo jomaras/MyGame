@@ -17,6 +17,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        this.context2D = null;
        this.backBuffer = null;
        this.backBufferContext2D = null;
+       this.startTime = new Date();
 
        var gameManager = this;
        Ostro.GLOBALS.GAME_MANAGER = this;
@@ -35,10 +36,10 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        // create a new ResourceManager
        this.resourceManager = new Ostro.ResourceManager
        ([
-           { name: 'runLeft', src: 'images/run_left.png'},
-           { name: 'runRight', src: 'images/run_right.png'},
-           { name: 'idleLeft', src: 'images/idle_left.png'},
-           { name: 'idleRight', src: 'images/idle_right.png'},
+           { name: 'player_run_left', src: 'images/run_left.png'},
+           { name: 'player_run_right', src: 'images/run_right.png'},
+           { name: 'player_idle_left', src: 'images/idle_left.png'},
+           { name: 'player_idle_right', src: 'images/idle_right.png'},
            { name: 'background0', src: 'images/jsplatformer4_b0.png'},
            { name: 'background1', src: 'images/jsplatformer4_b1.png'},
            { name: 'background2', src: 'images/jsplatformer4_b2.png'},
@@ -54,6 +55,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        this.resourceManager.loadResources(function()
        {
            this.createGameObjects();
+
            setInterval(function(){ gameManager.draw(); }, Ostro.GLOBALS.SECONDS_BETWEEN_FRAMES);
        }, this);
 
@@ -66,7 +68,10 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
        this.canvas.onmousedown = function(event)
        {
-           gameManager.clock.isPointWithin(event.offsetX, event.offsetY)
+           var offsetX = event.pageX - gameManager.canvas.offsetLeft;
+           var offsetY = event.pageY - gameManager.canvas.offsetTop;
+
+           gameManager.clock.isPointWithin(offsetX, offsetY)
                       ? isMouseCapturedClock = true
                       : isMouseCapturedCanvas = true;
 
@@ -88,7 +93,8 @@ Ostro.GameManager = Ostro.OO.Class.extend({
            {
                gameManager.canvas.onmousemove = function(mouseMoveEvent)
                {
-                    gameManager.clock.onMouseDrag(mouseMoveEvent.offsetX, mouseMoveEvent.offsetY);
+                    gameManager.clock.onMouseDrag(mouseMoveEvent.pageX - gameManager.canvas.offsetLeft,
+                                                  mouseMoveEvent.pageY - gameManager.canvas.offsetTop);
                }
            }
 

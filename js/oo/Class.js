@@ -29,7 +29,7 @@
                         // The method only need to be bound temporarily, so we
                         // remove it when we're done executing
                         var ret = fn.apply(this, arguments);
-                        this._super = tmp;
+                        this.__super = _super;
 
                         return ret;
                     };

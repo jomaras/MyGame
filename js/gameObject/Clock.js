@@ -3,7 +3,7 @@ Ostro.GameObject.Clock = Ostro.GameObject.Model.GameObject.extend({
     {
         this._super(x, y, z);
 
-        this.totalTime = 5;
+        this.totalTime = 0;
 
         this.degreesPerSecond = 6;
 
