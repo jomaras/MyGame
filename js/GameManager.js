@@ -145,12 +145,19 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         this.gameObjects.sort(function(a, b) { return a.zOrder - b.zOrder; })
     },
 
+    _INDEX: 1,
+
     draw: function ()
     {
         // calculate the time since the last frame
         var thisFrame = new Date().getTime();
         var dt = (thisFrame - this.lastFrame)/1000;
         this.lastFrame = thisFrame;
+
+        if(this._INDEX++ % 500 == 0)
+        {
+            console.log((new Date()) - this.startTime);
+        }
 
         // clear the drawing contexts
         this.backBufferContext2D.clearRect(0, 0, this.backBuffer.width, this.backBuffer.height);

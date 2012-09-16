@@ -145,8 +145,8 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
     update: function (dt, context, xScroll, yScroll)
     {
-        if (this.left) { this.x -= this.speed * this.defaultDelta; }
-        if (this.right) { this.x += this.speed * this.defaultDelta;}
+        if (this.left) { this.x -= this.speed * dt; }
+        if (this.right) { this.x += this.speed * dt;}
 
         // only test for a collision if the player is moving left or right
         // (and not trying to do both at the same time)
@@ -197,6 +197,7 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
          this.gameObjectManager.xScroll = xScroll;*/
 
+
         if (this.x < 0)
         {
             this.x = 0;
@@ -208,13 +209,13 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
             // the last position on the sine wave
             var lastHeight = this.jumpSinWavePos;
             // the new position on the sine wave
-            this.jumpSinWavePos += this.jumpSinWaveSpeed * this.defaultDelta;
+            this.jumpSinWavePos += this.jumpSinWaveSpeed * dt;
 
             // we have fallen off the bottom of the sine wave, so continue falling
             // at a predetermined speed
             if (this.jumpSinWavePos >= Math.PI)
             {
-                this.y += this.jumpHeight / this.jumpHangTime * this.fallMultiplyer * this.defaultDelta;
+                this.y += this.jumpHeight / this.jumpHangTime * this.fallMultiplyer * dt;
             }
             else
             {
