@@ -147,7 +147,9 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         this.player = new Ostro.GameObject.Player(this.level, this);
         this.gameObjects.push(this.player);
 
-        this.gameObjects.push(new Ostro.GameObject.Mummy(this.level, this));
+        this.mummy = new Ostro.GameObject.Mummy(this.level, this);
+
+        this.gameObjects.push(this.mummy);
 
         this.clock = new Ostro.GameObject.Clock(50, 50, 4);
 
@@ -239,5 +241,22 @@ Ostro.GameManager = Ostro.OO.Class.extend({
                 gameObject.keyUp(event);
             }
         }
+    },
+
+    willPlayerCollideWithMummy: function()
+    {
+        var currentPlayerXPosition = this.player.x;
+        var currentMummyXPosition = this.mummy.x;
+
+        var predictedPlayerXPosition = this.player.predictPosition(0.4).x;
+        var predictedMummyXPosition = this.mummy.predictPosition(0.4).x;
+
+        var playerLowerX = Math.min(currentPlayerXPosition, predictedPlayerXPosition);
+        var playerHigherX =  Math.max(currentPlayerXPosition, predictedPlayerXPosition);
+
+        var mummyLowerX = Math.min(currentMummyXPosition, predictedMummyXPosition);
+        var mummyHigherX =  Math.max(currentMummyXPosition, predictedMummyXPosition);
+
+        return playerLowerX <= mummyHigherX && playerHigherX >= mummyLowerX;
     }
 });

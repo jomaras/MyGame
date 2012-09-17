@@ -360,5 +360,14 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
                 this.updateCounter = 0;
             }
         }
+    },
+
+    predictPosition: function(dt)
+    {
+        return {
+            x: this.left ? this.x - this.speed * dt
+                         : this.x + this.speed * dt,
+            y: this.y
+        }
     }
 });

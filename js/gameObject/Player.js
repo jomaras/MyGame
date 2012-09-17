@@ -30,22 +30,14 @@ Ostro.GameObject.Player = Ostro.GameObject.Model.Character.extend({
            return;
        }
 
-       if(!this.level.isAccessible(predictedPosition.x, predictedPosition.y))
+       if(!this.level.isAccessible(predictedPosition.x, predictedPosition.y)
+       || this.gameManager.willPlayerCollideWithMummy())
        {
            this.jumpRight();
        }
        else
        {
            this.goRight();
-       }
-   },
-
-   predictPosition: function(dt)
-   {
-       return {
-           x: this.left ? this.x - this.speed * dt
-                        : this.x + this.speed * dt,
-           y: this.y
        }
    }
 });
