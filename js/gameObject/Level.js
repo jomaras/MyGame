@@ -2,10 +2,13 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
    init: function(canvasWidth, canvasHeight, resourceManager)
    {
        this.resourceManager = resourceManager;
+       this.canvasWidth = canvasWidth;
+       this.canvasHeight = canvasHeight;
 
        this.blocks = [];
        this.powerups = {};
        this.powerupItems = [];
+       this.blockPoints = [];
        this.blockItems = [];
        this.blockWidth = 64;
        this.blockHeight = 48;
@@ -22,12 +25,13 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
        this.blocks[9] = 2;
        this.blocks[10] = 3;
        this.blocks[11] = 3;
-       this.blocks[12] = 3;
+       this.blocks[12] = 4;
        this.blocks[13] = 4;
        this.blocks[14] = 4;
        this.blocks[15] = 4;
+       this.blocks[16] = 4;
 
-       this.powerups[14] = 'Gem';
+       this.powerups[15] = 'Gem';
 
        this.addBlocks(canvasWidth, canvasHeight);
        this.addPowerups(canvasWidth, canvasHeight);
@@ -42,10 +46,17 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
    {
         for (var x = 0; x < this.blocks.length; ++x)
         {
+            var blockX = 0, blockY = 0;
+
             for (var y = 0; y < this.blocks[x]; ++y)
             {
-                this.blockItems.push(new Ostro.GameObject.Model.VisualGameObject(this.resourceManager.getResource("block"), x * this.blockWidth, canvasHeight - (y + 1) * this.blockHeight, 4));
+                blockX = x * this.blockWidth;
+                blockY = canvasHeight - (y + 1) * this.blockHeight;
+
+                this.blockItems.push(new Ostro.GameObject.Model.VisualGameObject(this.resourceManager.getResource("block"), blockX, blockY, 4));
             }
+
+            this.blockPoints.push({x: blockX, y: blockY});
         }
    },
 
@@ -67,6 +78,40 @@ Ostro.GameObject.Level = Ostro.OO.Class.extend({
                }
            }
        }
+   },
+
+   getShortestPath: function(startX, startY)
+   {
+
+   },
+
+   isPowerup: function(pointX, pointY)
+   {
+       return this.powerups[this.currentBlock(pointX)];
+   },
+
+   isAccessible: function(pointX, pointY)
+   {
+       var currentBlockIndex = this.currentBlock(pointX);
+       var groundHeight = this.groundHeight(currentBlockIndex);
+
+       return pointY < (this.canvasHeight - groundHeight);
+   },
+
+   canBeSeenFrom: function(startX, startY, endX, endY)
+   {
+       var line = Ostro.Geometry.Line.createFromTwoPoints(startX, startY, endX, endY);
+
+       for(var i = 0, length = this.blockPoints.length; i < length; i++)
+       {
+           var point = this.blockPoints[i];
+           if(line.isOnLine(point.x, point.y))
+           {
+                return false;
+           }
+       }
+
+       return true;
    },
 
    currentBlock: function(x)

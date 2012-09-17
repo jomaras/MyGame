@@ -67,11 +67,13 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         if (this.isGoLeftKey(event.keyCode) && !this.left)
         {
             this.left = true;
+            this.right = false;
             updateRequired = true;
         }
         if (this.isGoRightKey(event.keyCode) && !this.right)
         {
             this.right = true;
+            this.left = false;
             updateRequired = true;
         }
         if (this.isJumpKey(event.keyCode) && this.grounded)
@@ -102,6 +104,36 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         }
 
         this.updateAnimation();
+    },
+
+    stayIdle: function()
+    {
+        this.left = false;
+        this.right = false;
+
+        this.updateAnimation();
+    },
+
+    jumpRight: function()
+    {
+        if(this.isPaused) { return; }
+
+        if(this.grounded)
+        {
+            this.grounded = false;
+            this.jumpSinWavePos = 0;
+        }
+    },
+
+    jumpLeft: function()
+    {
+        if(this.isPaused) { return; }
+
+        if(this.grounded)
+        {
+            this.grounded = false;
+            this.jumpSinWavePos = 0;
+        }
     },
 
     goLeft: function()
@@ -148,6 +180,14 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
     unPause: function()
     {
         this.isPaused = false;
+
+        if(this.configMap.isPlayerCharacter)
+        {
+            this.left = false;
+            this.right = false;
+        }
+
+        this.updateAnimation();
     },
 
     updateAnimation: function()
@@ -163,6 +203,17 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
         else if (this.left)
         {
             this.setAnimation(this.runLeft, this.configMap.runLeft.frameCount, 20);
+        }
+        else if (!this.left && !this.right)
+        {
+            if(this.image == this.runLeft)
+            {
+                this.setAnimation(this.idleLeft, this.configMap.idleLeft.frameCount, 20);
+            }
+            else if(this.image == this.runRight)
+            {
+                this.setAnimation(this.idleRight, this.configMap.idleLeft.frameCount, 20);
+            }
         }
     },
 
@@ -185,6 +236,9 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
             {
                 this.x =  historyPoint.x;
                 this.y = historyPoint.y;
+
+                this.left = historyPoint.left;
+                this.right = historyPoint.right;
 
                 this.setAnimation(this.sprites[historyPoint.spriteIndex], this.frameCounts[historyPoint.spriteIndex], 20);
             }
@@ -302,7 +356,7 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
             if(this.updateCounter % 5 == 0)
             {
-                this.history.push({x: this.x, y: this.y, spriteIndex: this.spriteIndex});
+                this.history.push({x: this.x, y: this.y, spriteIndex: this.spriteIndex, left: this.left, right: this.right});
                 this.updateCounter = 0;
             }
         }

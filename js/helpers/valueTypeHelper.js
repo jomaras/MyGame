@@ -1,5 +1,10 @@
 ﻿Ostro.Helpers.ValueTypeHelper =
 {
+    areEqualToPrecision: function(x1, x2, precision)
+    {
+        return Math.max(x1, x2) - Math.min(x1, x2) <= precision;
+    },
+
     isOfType: function (variable, className)
     {
         return variable instanceof className;
