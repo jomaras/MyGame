@@ -19,6 +19,8 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        this.backBufferContext2D = null;
        this.startTime = new Date();
 
+       this.mummies = [];
+
        var gameManager = this;
        Ostro.GLOBALS.GAME_MANAGER = this;
 
@@ -147,9 +149,14 @@ Ostro.GameManager = Ostro.OO.Class.extend({
         this.player = new Ostro.GameObject.Player(this.level, this);
         this.gameObjects.push(this.player);
 
-        this.mummy = new Ostro.GameObject.Mummy(this.level, this);
+        this.mummies.push(new Ostro.GameObject.Mummy(this.level, this, 420, 420, 580));
+        this.mummies.push(new Ostro.GameObject.Mummy(this.level, this, 150, 150, 300));
+        this.mummies.push(new Ostro.GameObject.Mummy(this.level, this));
 
-        this.gameObjects.push(this.mummy);
+        Ostro.Helpers.ValueTypeHelper.pushAll(this.gameObjects, this.mummies);
+
+        this.gameObjects.push();
+        this.gameObjects.push();
 
         this.clock = new Ostro.GameObject.Clock(50, 50, 4);
 
@@ -245,18 +252,27 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
     willPlayerCollideWithMummy: function()
     {
-        var currentPlayerXPosition = this.player.x;
-        var currentMummyXPosition = this.mummy.x;
+        for(var i = 0, length = this.mummies.length; i < length; i++)
+        {
+            var mummy = this.mummies[i];
+            var currentPlayerXPosition = this.player.x;
+            var currentMummyXPosition = mummy.x;
 
-        var predictedPlayerXPosition = this.player.predictPosition(0.4).x;
-        var predictedMummyXPosition = this.mummy.predictPosition(0.4).x;
+            var predictedPlayerXPosition = this.player.predictPosition(0.4).x;
+            var predictedMummyXPosition = mummy.predictPosition(0.4).x;
 
-        var playerLowerX = Math.min(currentPlayerXPosition, predictedPlayerXPosition);
-        var playerHigherX =  Math.max(currentPlayerXPosition, predictedPlayerXPosition);
+            var playerLowerX = Math.min(currentPlayerXPosition, predictedPlayerXPosition);
+            var playerHigherX =  Math.max(currentPlayerXPosition, predictedPlayerXPosition);
 
-        var mummyLowerX = Math.min(currentMummyXPosition, predictedMummyXPosition);
-        var mummyHigherX =  Math.max(currentMummyXPosition, predictedMummyXPosition);
+            var mummyLowerX = Math.min(currentMummyXPosition, predictedMummyXPosition);
+            var mummyHigherX =  Math.max(currentMummyXPosition, predictedMummyXPosition);
 
-        return playerLowerX <= mummyHigherX && playerHigherX >= mummyLowerX;
+            if(playerLowerX <= mummyHigherX && playerHigherX >= mummyLowerX)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 });
