@@ -51,6 +51,12 @@ Ostro.GameObject.Model.AnimatedGameObject = Ostro.GameObject.Model.VisualGameObj
         this.sourceX = sourceX;
      },
 
+     isPointWithin: function(xPoint, yPoint)
+     {
+         return xPoint >= this.x && xPoint <= (this.x + this.frameWidth)
+             && yPoint >= this.y && yPoint <= (this.y + this.image.height);
+     },
+
      collisionArea: function()
      {
         return new Ostro.Geometry.Rectangle(this.x, this.y, this.frameWidth, this.image.height);

@@ -1,45 +1,139 @@
 <HTML>
 <HEAD>
 <TITLE> Analog Clock </TITLE>
+    <meta charset="UTF-8">
 <script>
-    var Ostro = {OO:{}};
-</script>
-<script type="text/javascript" src="../js/oo/Class.js"></script>
-<script>
-    var A = Ostro.OO.Class.extend({
-       init: function()
-       {
 
-       },
-
-       test: function()
-       {
-           console.log("Log a");
-       },
-
-       something: function()
-       {
-
-       }
-    });
-
-    var B = A.extend({
-       init: function()
-       {
-           this._super();
-       },
-
-        test: function()
-        {
-            console.log("Log b");
-        }
-    });
-
-    var b = new B();
-    b.test();
 </script>
 </HEAD>
 
 <BODY>
+    <p>Click on grid to create a player</p>
+    <script>
+        var Ostro = {
+            OO: {},
+            Geometry: {}
+        }
+    </script>
+    <script src="../js/oo/Class.js"></script>
+    <script src="../js/geometry/Line.js"></script>
+    <canvas id="mainCanvas" width="450" height="300"></canvas>
+    <script>
+        var canvas = document.getElementById("mainCanvas");
+        var player = null;
+
+        canvas.onclick = function(event)
+        {
+            blocks.forEach(function(block){ block.containsPlayer = null;})
+
+            var offsetX = event.pageX - canvas.offsetLeft;
+            var offsetY = event.pageY - canvas.offsetTop;
+
+            var xIndex = parseInt(offsetX/blockSize);
+            var yIndex = parseInt((canvasHeight - offsetY)/blockSize);
+
+            blocks[xIndex].containsPlayer = yIndex;
+
+            player = { x: xIndex, y: yIndex};
+
+            renderGrid();
+        };
+
+        var ctx = canvas.getContext("2d");
+        var canvasHeight = 300;
+        var canvasWidth = 450;
+
+        var blocks = [];
+        var blockSize = 50;
+
+        blocks[0] = { height: 1 };
+        blocks[1] = { height: 1 };
+        blocks[2] = { height: 1 };
+        blocks[3] = { height: 2 };
+        blocks[4] = { height: 3 };
+        blocks[5] = { height: 4 };
+        blocks[6] = { height: 3 };
+        blocks[7] = { height: 2 };
+        blocks[8] = { height: 1 };
+
+        function renderGrid()
+        {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            ctx.strokeStyle = "black";
+
+            //Draw grid
+            for(var i = 0; i < blocks.length; i++)
+            {
+                for(var j = 0; j < 6; j++)
+                {
+                    ctx.strokeRect(i*blockSize, canvasHeight - j*blockSize - blockSize, blockSize, blockSize);
+                }
+            }
+
+            //Draw level and player
+            ctx.fillStyle = "red";
+            for(var i = 0; i < blocks.length; i++)
+            {
+
+                var block = blocks[i];
+                for (var j = 0; j < block.height; j++)
+                {
+                    ctx.fillRect(i*blockSize, canvasHeight - j*blockSize - blockSize, blockSize, blockSize);
+                }
+            }
+
+            ctx.fillStyle = "blue";
+
+            if(player != null)
+            {
+                ctx.fillRect(player.x*blockSize, canvasHeight - player.y*blockSize - blockSize, blockSize, blockSize);
+
+                ctx.fillStyle = "yellow"; //Rectangles that can be seen
+                //Calculate not filled blocks which player sees
+                for(var i = 0; i < blocks.length; i++)
+                {
+                    var block = blocks[i];
+
+                    for(var j = block.height; j < 6; j++)
+                    {
+                        if(i != player.x || j != player.y)
+                        {
+                            if(canLineBeDrawn(player.x, player.y, i, j))
+                            {
+                                ctx.fillRect(i*blockSize, canvasHeight - j*blockSize - blockSize, blockSize, blockSize);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        function canLineBeDrawn(point1x, point1y, point2x, point2y)
+        {
+            var line = new Ostro.Geometry.Line(point1x, point1y, point2x, point2y);
+
+            var smallerX = Math.min(point1x, point2x);
+            var largerX = Math.max(point1x, point2x);
+
+            for(var i = smallerX + 1; i < largerX; i++)
+            {
+                var block = blocks[i];
+
+                var point = line.getPointOnLineFromY(i);
+
+                if(block.height >= point.y)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        renderGrid();
+
+
+    </script>
 </BODY>
 </HTML>

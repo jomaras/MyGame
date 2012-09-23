@@ -13,6 +13,31 @@ Ostro.Geometry.Line = Ostro.OO.Class.extend({
         }
 
         return Ostro.Helpers.ValueTypeHelper.areEqualToPrecision(this.a * x + this.b, y, 0.01);
+    },
+
+    getPointOnLineFromX: function(x)
+    {
+        if(Number.isNaN(this.a) && Number.isNaN(this.b))
+        {
+            return {x: x, y: Number.NaN};
+        }
+
+        return {x: x, y: this.a * x + this.b }
+    },
+
+    getPointOnLineFromY: function(y)
+    {
+        if(Number.isNaN(this.a) && Number.isNaN(this.b))
+        {
+            return {x: this.x, y: y};
+        }
+
+        if(this.a == 0)
+        {
+            return {x: Number.NaN, y: y};
+        }
+
+        return {x: (y - this.b)/this.a, y:y };
     }
 });
 

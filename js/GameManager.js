@@ -51,7 +51,10 @@ Ostro.GameManager = Ostro.OO.Class.extend({
            { name: 'mummy_idle_left', src: 'images/mummy_idle_left.png'},
            { name: 'mummy_idle_right', src: 'images/mummy_idle_right.png'},
            { name: 'mummy_walk_left', src: 'images/mummy_walk_left.png'},
-           { name: 'mummy_walk_right', src: 'images/mummy_walk_right.png'}
+           { name: 'mummy_walk_right', src: 'images/mummy_walk_right.png'},
+
+           { name: 'stop', src: "images/Stop.png"},
+           { name: 'go', src: "images/Go.png"}
        ]);
 
        this.resourceManager.loadResources(function()
@@ -64,8 +67,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
        document.onkeydown = function(event){ gameManager.keyDown(event);}
        document.onkeyup = function(event){ gameManager.keyUp(event); }
 
-       var isMouseCapturedCanvas;
-       var isMouseCapturedClock;
+       var mouseCapturedInfo = null;
        var previousCapturePoint = null;
 
        this.canvas.onmousedown = function(event)
@@ -73,63 +75,81 @@ Ostro.GameManager = Ostro.OO.Class.extend({
            var offsetX = event.pageX - gameManager.canvas.offsetLeft;
            var offsetY = event.pageY - gameManager.canvas.offsetTop;
 
-           gameManager.clock.isPointWithin(offsetX, offsetY)
-                      ? isMouseCapturedClock = true
-                      : isMouseCapturedCanvas = true;
+           mouseCapturedInfo = {};
 
-           if(event.button == 2 && isMouseCapturedCanvas)
+           mouseCapturedInfo.button = event.button;
+
+           if(event.button == 2)
            {
-               gameManager.canvas.onmousemove = function(mouseMoveEvent)
-               {
-                   if(previousCapturePoint != null)
-                   {
-                       var deltaX = mouseMoveEvent.pageX - previousCapturePoint.x;
-                       gameManager.xScroll -= (deltaX) * 0.5;
-                   }
-
-                   previousCapturePoint = { x: mouseMoveEvent.pageX, y: mouseMoveEvent.pageY };
-               }
+               mouseCapturedInfo.object = null;
            }
-
-           if(isMouseCapturedClock)
+           else if(gameManager.clock.isPointWithin(offsetX, offsetY))
            {
+               mouseCapturedInfo.object = gameManager.clock;
                gameManager.pause();
-
-               gameManager.canvas.onmousemove = function(mouseMoveEvent)
-               {
-                   gameManager.clock.onMouseDrag(mouseMoveEvent.pageX - gameManager.canvas.offsetLeft,
-                                                 mouseMoveEvent.pageY - gameManager.canvas.offsetTop);
-
-                   if(gameManager.clock.changeInDegrees > 0)
-                   {
-                       gameManager.historyChange = Math.round(gameManager.clock.changeInDegrees);
-                   }
-               }
            }
-
-           return false;
        };
+
+        gameManager.canvas.onmousemove = function(mouseMoveEvent)
+        {
+            if(mouseCapturedInfo == null) { return false; }
+
+            if (mouseCapturedInfo.object == null)
+            {
+                if(previousCapturePoint != null)
+                {
+                    var deltaX = mouseMoveEvent.pageX - previousCapturePoint.x;
+                    gameManager.xScroll -= (deltaX) * 0.5;
+                }
+            }
+
+            else if(mouseCapturedInfo.object == gameManager.clock)
+            {
+                gameManager.clock.onMouseDrag(mouseMoveEvent.pageX - gameManager.canvas.offsetLeft,
+                                              mouseMoveEvent.pageY - gameManager.canvas.offsetTop);
+
+                if(gameManager.clock.changeInDegrees > 0)
+                {
+                    gameManager.historyChange = Math.round(gameManager.clock.changeInDegrees);
+                }
+            }
+
+            previousCapturePoint = { x: mouseMoveEvent.pageX, y: mouseMoveEvent.pageY };
+        }
 
         document.onmouseup = function(event)
         {
-            if(event.button == 2 && isMouseCapturedCanvas)
-            {
-                isMouseCapturedCanvas = false;
-                previousCapturePoint = null;
+            if(mouseCapturedInfo == null) { return; }
 
-                gameManager.canvas.onmousemove = null;
+            if(mouseCapturedInfo.object == gameManager.clock || event.button == 2)
+            {
+                this.historyChange = null;
+                gameManager.unPause();
             }
 
-            if(isMouseCapturedClock)
+            mouseCapturedInfo = null;
+            previousCapturePoint = null;
+        };
+
+        this.canvas.onclick = function(event)
+        {
+            var offsetX = event.pageX - gameManager.canvas.offsetLeft + gameManager.xScroll;
+            var offsetY = event.pageY - gameManager.canvas.offsetTop;
+
+            if (gameManager.player.isPointWithin(offsetX, offsetY))
             {
-                isMouseCapturedClock = false;
-                previousCapturePoint = null;
-
-                gameManager.canvas.onmousemove = null;
-
-                gameManager.unPause();
-
-                this.historyChange = null;
+                if(gameManager.isPaused)
+                {
+                    gameManager.unPause();
+                }
+                else
+                {
+                    gameManager.pause();
+                }
+            }
+            else if (gameManager.tooltip.isPointWithin(offsetX, offsetY) && !gameManager.tooltip.hidden)
+            {
+                gameManager.tooltip.goRight();
             }
         };
 
@@ -148,6 +168,15 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
         this.player = new Ostro.GameObject.Player(this.level, this);
         this.gameObjects.push(this.player);
+
+        this.tooltip = new Ostro.GameObject.Tooltip
+        (
+            [this.resourceManager.getResource("stop"), this.resourceManager.getResource("go")],
+            this.player.x, this.player.y, this.player.zOrder
+        );
+
+        this.gameObjects.push(this.tooltip);
+
 
         this.mummies.push(new Ostro.GameObject.Mummy(this.level, this, 420, 420, 580));
         this.mummies.push(new Ostro.GameObject.Mummy(this.level, this, 150, 150, 300));
@@ -184,7 +213,15 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
             if(!gameObject) { continue; }
 
-            gameObject.update && gameObject.update(dt, this.backBufferContext2D, this.xScroll, this.yScroll, this.historyChange);
+            if(gameObject == this.tooltip)
+            {
+                gameObject.update && gameObject.update(this.player.x + 5, this.player.y - this.player.image.height/1.8);
+            }
+            else
+            {
+                gameObject.update && gameObject.update(dt, this.backBufferContext2D, this.xScroll, this.yScroll, this.historyChange);
+            }
+
             gameObject.draw && gameObject.draw(dt, this.backBufferContext2D, this.xScroll, this.yScroll);
         }
 
@@ -197,7 +234,7 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
     pause: function()
     {
-        var gameObjects = this.gameObjects
+        var gameObjects = this.gameObjects;
 
         for(var i = 0, length = gameObjects.length; i < length; i++)
         {
@@ -205,6 +242,9 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
             gameObject.pause && gameObject.pause();
         }
+
+        this.isPaused = true;
+        this.tooltip.hidden = false;
     },
 
     unPause: function()
@@ -217,6 +257,10 @@ Ostro.GameManager = Ostro.OO.Class.extend({
 
             gameObject.unPause && gameObject.unPause();
         }
+
+        this.tooltip.hidden = true;
+        this.isPaused = false;
+        this.player.isAiEnabled = this.tooltip.selectedIndex == 1;
     },
 
     removeGameObject: function(gameObject)

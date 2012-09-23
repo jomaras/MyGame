@@ -18,26 +18,33 @@ Ostro.GameObject.Player = Ostro.GameObject.Model.Character.extend({
    {
        this.__super.update.apply(this, arguments);
 
-       var dt = arguments[0];
-
-       if(!this.grounded) { return; }
-
-       var predictedPosition = this.predictPosition(0.7);
-
-       if(this.level.isPowerup(this.x, this.y))
+       if(this.isAiEnabled)
        {
-           this.stayIdle();
-           return;
-       }
+           var dt = arguments[0];
 
-       if(!this.level.isAccessible(predictedPosition.x, predictedPosition.y)
-       || this.gameManager.willPlayerCollideWithMummy())
-       {
-           this.jumpRight();
+           if(!this.grounded) { return; }
+
+           var predictedPosition = this.predictPosition(0.7);
+
+           if(this.level.isPowerup(this.x, this.y))
+           {
+               this.stayIdle();
+               return;
+           }
+
+           if(!this.level.isAccessible(predictedPosition.x, predictedPosition.y)
+            || this.gameManager.willPlayerCollideWithMummy())
+           {
+               this.jumpRight();
+           }
+           else
+           {
+               this.goRight();
+           }
        }
        else
        {
-           this.goRight();
+           this.stayIdle();
        }
    }
 });
