@@ -56,5 +56,5 @@ Ostro.Geometry.Line.createFromTwoPoints = function(x1, y1, x2, y2)
 
     var a = deltaY/deltaX;
 
-    return new Ostro.Geometry.Line(a, a * x1 + y1);
+    return new Ostro.Geometry.Line(a, y1 - a * x1);
 };

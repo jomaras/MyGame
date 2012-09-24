@@ -17,6 +17,68 @@
     </script>
     <script src="../js/oo/Class.js"></script>
     <script src="../js/geometry/Line.js"></script>
+
+    <script>
+        var borderPoints = [
+            { x:0, y:1 },
+            { x:1, y:1 },
+            { x:2, y:1 },
+            { x:3, y:1 },
+            { x:3, y:2 },
+            { x:4, y:2 },
+            { x:5, y:3 },
+            { x:5, y:4 },
+            { x:6, y:4 },
+            { x:6, y:3 },
+            { x:7, y:3 },
+            { x:7, y:2 },
+            { x:8, y:1 },
+            { x:9, y:1 }
+        ];
+
+       var tests = [
+           { x1: 1, y1: 4, x2:3, y2: 4, canBeDrawn: true },
+           { x1: 1, y1: 3, x2:1, y2: 4, canBeDrawn: true },
+           { x1: 1, y1: 2, x2:2, y2: 3, canBeDrawn: true },
+           { x1: 2, y1: 3, x2:8, y2: 3, canBeDrawn: false },
+           { x1: 3, y1: 4, x2:9, y2: 2, canBeDrawn: false }
+       ];
+
+       tests.forEach(function(test)
+       {
+           if(test.canBeDrawn !== canBeSeen(test.x1, test.y1, test.x2, test.y2))
+           {
+               document.writeln("Invalid test: " + JSON.stringify(test));
+           }
+       });
+
+       function canBeSeen(x1, y1, x2, y2)
+       {
+           var line = Ostro.Geometry.Line.createFromTwoPoints(x1, y1, x2, y2);
+
+           var smallerX = Math.min(x1, x2);
+           var largerX = Math.max(x1, x2);
+
+           for(var i = 0; i < borderPoints.length; i++)
+           {
+               var borderPoint = borderPoints[i];
+
+               if(borderPoint.x >= smallerX && borderPoint.x <= largerX)
+               {
+                   var pointOnLine = line.getPointOnLineFromX(borderPoint.x);
+
+                   if(borderPoint.y >= pointOnLine.y)
+                   {
+                       return false;
+                   }
+               }
+           }
+
+           return true;
+       }
+
+    </script>
+
     <canvas id="mainCanvas" width="450" height="300"></canvas>
     <script>
         var canvas = document.getElementById("mainCanvas");
@@ -111,7 +173,7 @@
 
         function canLineBeDrawn(point1x, point1y, point2x, point2y)
         {
-            var line = new Ostro.Geometry.Line(point1x, point1y, point2x, point2y);
+            var line = Ostro.Geometry.Line.createFromTwoPoints(point1x, point1y, point2x, point2y);
 
             var smallerX = Math.min(point1x, point2x);
             var largerX = Math.max(point1x, point2x);
@@ -120,9 +182,9 @@
             {
                 var block = blocks[i];
 
-                var point = line.getPointOnLineFromY(i);
+                var point = line.getPointOnLineFromX(i);
 
-                if(block.height >= point.y)
+                if(block.height > point.y)
                 {
                     return false;
                 }

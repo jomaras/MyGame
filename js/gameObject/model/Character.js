@@ -239,6 +239,7 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
                 this.left = historyPoint.left;
                 this.right = historyPoint.right;
+                this.isAiEnabled = historyPoint.isAiEnabled;
 
                 this.setAnimation(this.sprites[historyPoint.spriteIndex], this.frameCounts[historyPoint.spriteIndex], 20);
             }
@@ -356,7 +357,12 @@ Ostro.GameObject.Model.Character = Ostro.GameObject.Model.AnimatedGameObject.ext
 
             if(this.updateCounter % 5 == 0)
             {
-                this.history.push({x: this.x, y: this.y, spriteIndex: this.spriteIndex, left: this.left, right: this.right});
+                this.history.push({
+                    x: this.x, y: this.y,
+                    spriteIndex: this.spriteIndex,
+                    left: this.left, right: this.right,
+                    isAiEnabled: this.isAiEnabled
+                });
                 this.updateCounter = 0;
             }
         }
